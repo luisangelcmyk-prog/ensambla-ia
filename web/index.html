@@ -5,6 +5,7 @@
 </style></head><body>
 <header><div><div class="brand">ENSAMBLA <b>IA</b></div><div class="tiny">Prototipo académico · portavasos</div></div><span class="pill">PRUEBA MVP</span></header>
 <main>
+<section class="panel"><strong>Nuevo experimento: reconocimiento de piezas sin QR</strong><p class="note">Entrena la IA directamente con fotos tomadas desde tu celular. Es una prueba de clasificación, no una realidad aumentada espacial.</p><a class="button" href="./reconocimiento.html">Abrir reconocimiento sin QR →</a></section>
 <section class="hero"><div><h1>Tu guía de ensamblaje</h1><p>Portavasos de madera · 6 piezas físicas</p></div><span class="badge" id="counter">1 / 5</span></section>
 <section class="viewer" id="viewer"><video id="video" autoplay playsinline muted></video><div class="placeholder" id="placeholder"><div class="camera-icon">◎</div><strong>Cámara lista para activar</strong><p>Apunta al objeto o al marcador QR de la base. La cámara funciona con HTTPS y tu permiso.</p></div><canvas class="overlay" id="overlay"></canvas><div class="guidance"><span id="modeText">GUÍA VISUAL · sin cámara</span><b id="markerStatus">QR no detectado</b></div><div class="scanstatus" id="status">La guía visual puede usarse sin cámara</div></section>
 <section class="switch"><button id="cameraBtn">Activar cámara</button><button class="secondary" id="flipBtn" disabled>Cambiar cámara</button><button class="secondary" id="snapBtn" disabled>Guardar evidencia</button><label><input id="overlayToggle" type="checkbox" checked> Mostrar guía</label></section>
