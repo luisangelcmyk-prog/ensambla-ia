@@ -22,7 +22,25 @@
 <label class="check"><input type="checkbox" id="done"> Confirmé físicamente este paso</label>
 <div class="actions"><button id="prev" class="secondary" disabled>Anterior</button><button id="next">Siguiente paso</button><button id="log" class="secondary">Descargar registro CSV</button></div>
 </section>
-<section class="panel"><h2>Referencia del objeto</h2><p class="muted">Usa las imágenes reales para comprobar orientación y ranuras. Los pasos se infirieron de fotografías y el equipo debe verificar el orden físico.</p><img src="../assets/piezas.jpg" alt="Fotografía real de las piezas desmontadas" style="width:100%;border-radius:10px"><p class="muted"><a href="./reconocimiento.html">Abrir clasificador de piezas (versión 2)</a> · <a href="./index.html">Abrir guía por QR (versión 1)</a></p></section>
+<section class="panel"><h2>Mapa de piezas</h2><p class="muted">Esquema ilustrativo del kit de seis piezas. Sirve para reconocer su forma general; verifica siempre las ranuras y encastres con las piezas reales.</p>
+<svg viewBox="0 0 600 420" role="img" aria-label="Esquema ordenado de seis piezas del portavasos: asa, dos placas perforadas, dos soportes y base" style="display:block;width:100%;height:auto;border-radius:14px;background:#091c28;border:1px solid #315160;margin:15px 0">
+<defs><linearGradient id="wood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f1d2a0"/><stop offset="1" stop-color="#cca06b"/></linearGradient></defs>
+<g fill="none" stroke="#315160" stroke-width="1"><path d="M200 18V402M400 18V402M20 211H580"/></g>
+<!-- Asa -->
+<path d="M76 45Q76 31 90 31H151Q165 31 165 45V169H76Z" fill="url(#wood)" stroke="#f7e3bd" stroke-width="2"/>
+<rect x="95" y="46" width="50" height="25" rx="11" fill="#091c28"/><path d="M107 163h27" stroke="#704b2e" stroke-width="3"/>
+<!-- Placas perforadas -->
+<g fill="url(#wood)" stroke="#f7e3bd" stroke-width="2"><rect x="233" y="39" width="133" height="113" rx="14"/><rect x="423" y="39" width="133" height="113" rx="14"/></g>
+<g fill="#091c28"><circle cx="267" cy="72" r="20"/><circle cx="329" cy="72" r="20"/><circle cx="267" cy="120" r="20"/><circle cx="329" cy="120" r="20"/><circle cx="457" cy="72" r="20"/><circle cx="519" cy="72" r="20"/><circle cx="457" cy="120" r="20"/><circle cx="519" cy="120" r="20"/></g>
+<!-- Base -->
+<rect x="42" y="242" width="145" height="117" rx="15" fill="url(#wood)" stroke="#f7e3bd" stroke-width="2"/><path d="M114 262V336" stroke="#704b2e" stroke-width="7" stroke-linecap="round"/>
+<!-- Supports -->
+<g fill="url(#wood)" stroke="#f7e3bd" stroke-width="2"><path d="M264 248H293V352H264Z"/><path d="M453 248H482V352H453Z"/></g>
+<g stroke="#091c28" stroke-width="4"><path d="M264 275h10m19 40h-10M453 275h10m19 40h-10"/></g>
+<g fill="#e9faf0" font-family="system-ui,sans-serif" font-size="16" text-anchor="middle" font-weight="650"><text x="120" y="191">01 · Asa</text><text x="300" y="191">02 · Placa</text><text x="490" y="191">03 · Placa</text><text x="115" y="390">04 · Base</text><text x="280" y="390">05 · Soporte</text><text x="470" y="390">06 · Soporte</text></g>
+</svg>
+<p class="muted">Para seguir el montaje, utiliza la cámara y la guía del paso actual que aparecen arriba. Este mapa no sustituye la verificación física.</p>
+<p class="muted"><a href="./reconocimiento.html">Abrir clasificador de piezas (versión 2)</a> · <a href="./index.html">Abrir guía por QR (versión 1)</a></p></section>
 <section class="panel"><h2>Alcance de la prueba</h2><p class="footer">Esta pantalla es una guía visual 2D superpuesta a la cámara. No realiza seguimiento espacial 3D, reconocimiento de posición, detección de errores de encastre ni validación automática del armado. Para evaluar su utilidad, registra si el usuario puede completar cada paso con menos dudas y anota dónde debe recolocar la guía manualmente.</p></section>
 </main><canvas id="snap"></canvas>
 <script>
