@@ -1,0 +1,17 @@
+ENSAMBLA IA 3.0 - GUIA VISUAL DE ARMADO
+
+CONTENIDO: web/guia-ra.html
+
+1) En GitHub abre tu repositorio ensambla-ia y entra a la carpeta web.
+2) Haz clic en Add file -> Upload files.
+3) Desde esta descarga sube SOLO guia-ra.html a la carpeta web (no a la raiz).
+4) Haz clic en Commit changes.
+5) Abre en el celular https://luisangelcmyk-prog.github.io/ensambla-ia/web/guia-ra.html
+6) Autoriza la camara, centra el objeto, arrastra el dibujo para alinearlo con la pieza y ajusta Tamano de la guia.
+7) Recorre los pasos y marca Confirmé físicamente este paso.
+8) Usa Guardar evidencia y Descargar registro CSV para presentar la prueba.
+
+IMPORTANTE: No hay seguimiento espacial 3D ni deteccion automatica de encastres. Es una guia 2D manual sobre video de la camara, una etapa de prototipado previa a RA real.
+NO reemplaza archivos de la version 2 ni modifica los ejemplos guardados en el navegador.
+
+COMPROBACION: La version 2 se mantiene en web/reconocimiento.html.
