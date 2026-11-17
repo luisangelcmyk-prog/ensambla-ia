@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#081923">
+<title>ENSAMBLA IA · Guía con seguimiento QR</title>
+<style>
+:root{--bg:#07151f;--panel:#102834;--line:#2b4855;--lime:#9cf16d;--muted:#b3c7ce;--white:#f4fbf7}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--white);font-family:system-ui,-apple-system,Segoe UI,sans-serif}header{padding:17px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center}header strong{font-size:21px;letter-spacing:.05em}header b{color:var(--lime)}.tag{font-size:11px;border:1px solid #477a53;border-radius:25px;padding:7px 10px;color:var(--lime)}main{max-width:780px;margin:0 auto;padding:16px;display:grid;gap:14px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px}h1{font-size:23px;margin:0 0 7px}h2{font-size:19px;margin:0 0 7px}p{line-height:1.5;margin:8px 0}.muted{color:var(--muted);font-size:13px}.viewer{position:relative;width:100%;aspect-ratio:3/4;max-height:62vh;overflow:hidden;border-radius:17px;background:#1e3540;touch-action:none}video{width:100%;height:100%;object-fit:cover;display:none}canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}#guide{pointer-events:auto}#snap{display:none}.chip{position:absolute;top:12px;left:12px;right:12px;background:#07151fdc;padding:10px;border:1px solid #588765;border-radius:12px;display:flex;justify-content:space-between;font-size:12px;gap:5px}.chip b{color:var(--lime)}.bottom{position:absolute;bottom:12px;left:12px;right:12px;background:#07151fe6;padding:10px;border-radius:11px;text-align:center;font-size:12px}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}button,a.btn{border:0;border-radius:11px;padding:12px 14px;font-size:13px;font-weight:750;background:var(--lime);color:#122519;cursor:pointer;text-decoration:none}button.secondary,a.btn.secondary{background:#2b4956;color:white;border:1px solid #4a6672}button:disabled{opacity:.4}.progress{height:7px;border-radius:10px;background:#304755;overflow:hidden;margin:12px 0}.progress>div{height:100%;width:20%;background:var(--lime)}.steps{display:flex;justify-content:space-between;align-items:center;gap:8px}.warn{color:#ffe0a0;font-size:12px}.check{display:flex;gap:8px;align-items:center;font-size:13px;color:#d5e6e4}input{accent-color:var(--lime)}input[type=range]{width:100%}.control{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:center;margin:12px 0}.footer{font-size:12px;color:var(--muted);line-height:1.5}a{color:var(--lime)}
+</style></head>
+<body>
+<header><div><strong>ENSAMBLA <b>IA</b></strong><div class="muted">Guía de montaje · prototipo experimental</div></div><span class="tag">SEGUIMIENTO 4.0</span></header>
+<main>
+<section class="panel"><h1>Armado asistido con cámara</h1><p class="muted">Superpone instrucciones 2D sobre la cámara. En modo QR, la guía sigue la posición del marcador al mover el teléfono. También puedes ajustar su desplazamiento manualmente. No detecta automáticamente si las piezas están bien ensambladas.</p></section>
+<section class="panel">
+<div class="viewer" id="viewer"><video id="video" playsinline muted autoplay></video><canvas id="guide"></canvas><div class="chip"><span>GUÍA 2D · <span id="stepTag">BASE</span></span><b id="camStatus">Cámara apagada</b></div><div class="bottom" id="hint">Activa la cámara. Arrastra la guía verde para alinearla con la pieza.</div></div>
+<div class="actions"><button id="camera">Activar cámara</button><button id="flip" class="secondary" disabled>Cambiar cámara</button><button id="capture" class="secondary" disabled>Guardar evidencia</button></div>
+<div class="actions"><button id="track" class="secondary" disabled>Activar seguimiento QR</button><button id="offset" class="secondary" disabled>Fijar posición relativa</button></div>
+<p class="muted" id="trackHelp">Coloca el QR original junto a la base (sin cubrir ranuras). Activa el seguimiento y ajusta con el dedo la guía sobre el objeto. Pulsa «Fijar posición relativa» para mantener esa separación al mover la cámara. Si se pierde el QR, la guía queda en el último lugar visible.</p>
+<div class="control"><label class="muted" for="scale">Tamaño de la guía</label><span id="scaleLabel" class="muted">100%</span></div><input id="scale" type="range" min="45" max="180" value="100" step="5">
+<div class="actions"><button id="center" class="secondary">Centrar guía</button><label class="check"><input type="checkbox" id="showGuide" checked> Mostrar guía visual</label></div>
+</section>
+<section class="panel">
+<div class="steps"><span id="stepCount" class="tag">Paso 1 de 5</span><span class="muted">6 piezas · 4 categorías</span></div><div class="progress"><div id="progress"></div></div><h2 id="title">Ubica la base</h2><p id="desc"></p><p class="warn" id="note"></p>
+<label class="check"><input type="checkbox" id="done"> Confirmé físicamente este paso</label>
+<div class="actions"><button id="prev" class="secondary" disabled>Anterior</button><button id="next">Siguiente paso</button><button id="log" class="secondary">Descargar registro CSV</button></div>
+</section>
+<section class="panel"><h2>Mapa de piezas</h2><p class="muted">Esquema ilustrativo del kit de seis piezas. Sirve para reconocer su forma general; verifica siempre las ranuras y encastres con las piezas reales.</p>
+<svg viewBox="0 0 600 420" role="img" aria-label="Esquema ordenado de seis piezas del portavasos: asa, dos placas perforadas, dos soportes y base" style="display:block;width:100%;height:auto;border-radius:14px;background:#091c28;border:1px solid #315160;margin:15px 0">
+<defs><linearGradient id="wood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f1d2a0"/><stop offset="1" stop-color="#cca06b"/></linearGradient></defs>
+<g fill="none" stroke="#315160" stroke-width="1"><path d="M200 18V402M400 18V402M20 211H580"/></g>
+<!-- Asa -->
+<path d="M76 45Q76 31 90 31H151Q165 31 165 45V169H76Z" fill="url(#wood)" stroke="#f7e3bd" stroke-width="2"/>
+<rect x="95" y="46" width="50" height="25" rx="11" fill="#091c28"/><path d="M107 163h27" stroke="#704b2e" stroke-width="3"/>
+<!-- Placas perforadas -->
+<g fill="url(#wood)" stroke="#f7e3bd" stroke-width="2"><rect x="233" y="39" width="133" height="113" rx="14"/><rect x="423" y="39" width="133" height="113" rx="14"/></g>
+<g fill="#091c28"><circle cx="267" cy="72" r="20"/><circle cx="329" cy="72" r="20"/><circle cx="267" cy="120" r="20"/><circle cx="329" cy="120" r="20"/><circle cx="457" cy="72" r="20"/><circle cx="519" cy="72" r="20"/><circle cx="457" cy="120" r="20"/><circle cx="519" cy="120" r="20"/></g>
+<!-- Base -->
+<rect x="42" y="242" width="145" height="117" rx="15" fill="url(#wood)" stroke="#f7e3bd" stroke-width="2"/><path d="M114 262V336" stroke="#704b2e" stroke-width="7" stroke-linecap="round"/>
+<!-- Supports -->
+<g fill="url(#wood)" stroke="#f7e3bd" stroke-width="2"><path d="M264 248H293V352H264Z"/><path d="M453 248H482V352H453Z"/></g>
+<g stroke="#091c28" stroke-width="4"><path d="M264 275h10m19 40h-10M453 275h10m19 40h-10"/></g>
+<g fill="#e9faf0" font-family="system-ui,sans-serif" font-size="16" text-anchor="middle" font-weight="650"><text x="120" y="191">01 · Asa</text><text x="300" y="191">02 · Placa</text><text x="490" y="191">03 · Placa</text><text x="115" y="390">04 · Base</text><text x="280" y="390">05 · Soporte</text><text x="470" y="390">06 · Soporte</text></g>
+</svg>
+<p class="muted"><a href="../assets/marcador_base.png" target="_blank" rel="noopener">Abrir QR original para imprimir</a></p><p class="muted">Para seguir el montaje, utiliza la cámara y la guía del paso actual que aparecen arriba. Este mapa no sustituye la verificación física.</p>
+<p class="muted"><a href="./reconocimiento.html">Abrir clasificador de piezas (versión 2)</a> · <a href="./index.html">Abrir guía por QR (versión 1)</a></p></section>
+<section class="panel"><h2>Alcance de la prueba</h2><p class="footer">Esta pantalla utiliza seguimiento del QR en imagen 2D, no realidad aumentada 3D ni reconocimiento físico de las piezas. La guía se mueve en relación con un marcador; no conoce los encastres ni verifica si el armado es correcto. La distancia y orientación del objeto respecto al marcador deben mantenerse constantes. Documenta cuándo se pierde el seguimiento o requiere reajuste.</p></section>
+</main><canvas id="snap"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const STEPS=[
+ {key:'BASE',title:'Ubica la base',desc:'Coloca la placa sólida sobre una superficie estable. Busca la ranura central y alinea la guía con su contorno.',note:'La guía muestra una zona de referencia, no mide el contorno real.',kind:'base',color:'#a0f16f'},
+ {key:'ASA',title:'Inserta el asa central',desc:'Identifica la pieza alta con abertura para la mano. Localiza el punto de unión con la ranura de la base y verifica la orientación antes de encajar.',note:'No fuerces el ensamble; comprueba las ranuras del prototipo.',kind:'handle',color:'#ffd676'},
+ {key:'SOPORTES',title:'Ubica los dos soportes',desc:'Identifica las dos piezas estrechas. Comprueba qué ranuras corresponden a cada nivel y colócalas simétricamente.',note:'Los indicadores muestran zonas aproximadas, no encastres detectados.',kind:'bars',color:'#8ed9fa'},
+ {key:'PLACA INTERMEDIA',title:'Coloca la placa intermedia',desc:'Alinea una placa de cuatro orificios con el nivel inferior de las ranuras de los soportes y del asa. Verifica que quede horizontal.',note:'Confirma el orden de instalación con el equipo antes de forzar una unión.',kind:'holes',color:'#ffa77b'},
+ {key:'PLACA SUPERIOR',title:'Coloca la placa superior',desc:'Alinea la segunda placa de cuatro orificios con los encastres superiores. Revisa manualmente la estabilidad de todo el objeto.',note:'Una confirmación no implica verificación automática del armado.',kind:'holes',color:'#c7a8ff'}
+];
+let stream=null,facing='environment',step=0,center={x:.5,y:.52},size=1,drag=null,events=[];
+let tracking=false, qrPoint=null, relative={x:0,y:0}, qrSeenAt=0, scanActive=false, lastScan=0, qrSize=0;
+const detectorCanvas=document.createElement('canvas'), detectorCtx=detectorCanvas.getContext('2d',{willReadFrequently:true});
+const QR_VALUE='ENSAMBLAIA-PORTAVASOS-BASE';
+
+const canvas=$('guide'),ctx=canvas.getContext('2d');
+function resize(){const r=$('viewer').getBoundingClientRect(),dpr=window.devicePixelRatio||1;canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);draw()}
+function rounded(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
+function draw(){const rect=$('viewer').getBoundingClientRect(),w=rect.width,h=rect.height,dpr=window.devicePixelRatio||1;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);if(!$('showGuide').checked)return;
+const s=STEPS[step],unit=Math.min(w*.53,h*.43)*size,x=center.x*w,y=center.y*h;ctx.save();ctx.translate(x,y);ctx.strokeStyle=s.color;ctx.fillStyle=s.color+'30';ctx.lineWidth=3;ctx.setLineDash([10,6]);
+if(s.kind==='base'){rounded(-unit*.58,-unit*.54,unit*1.16,unit*1.08,unit*.12);ctx.fill();ctx.stroke();ctx.setLineDash([]);ctx.beginPath();ctx.moveTo(-unit*.28,0);ctx.lineTo(unit*.28,0);ctx.stroke()}
+if(s.kind==='handle'){rounded(-unit*.22,-unit*.68,unit*.44,unit*1.3,unit*.08);ctx.fill();ctx.stroke();ctx.setLineDash([]);rounded(-unit*.14,-unit*.52,unit*.28,unit*.18,unit*.07);ctx.stroke();ctx.beginPath();ctx.moveTo(0,unit*.64);ctx.lineTo(0,unit*.91);ctx.stroke();drawArrow(0,unit*.91,s.color)}
+if(s.kind==='bars'){for(let k of [-1,1]){rounded(k*unit*.35-unit*.075,-unit*.46,unit*.15,unit*.92,unit*.025);ctx.fill();ctx.stroke()}}
+if(s.kind==='holes'){rounded(-unit*.58,-unit*.5,unit*1.16,unit,unit*.1);ctx.fill();ctx.stroke();ctx.setLineDash([]);for(let a of [-.28,.28])for(let b of [-.23,.23]){ctx.beginPath();ctx.arc(a*unit,b*unit,unit*.2,0,Math.PI*2);ctx.stroke()}ctx.beginPath();ctx.moveTo(0,-unit*.78);ctx.lineTo(0,-unit*.52);ctx.stroke();drawArrow(0,-unit*.52,s.color)}
+ctx.setLineDash([]);ctx.fillStyle='#061b28e8';ctx.fillRect(-unit*.58,-unit*.75,Math.min(unit*1.16,w*.7),27);ctx.fillStyle=s.color;ctx.font='bold 13px system-ui';ctx.fillText(`${step+1} · ${s.key}`, -unit*.54,-unit*.75+18);ctx.restore()}
+function drawArrow(x,y,color){ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-9,y-12);ctx.lineTo(x+9,y-12);ctx.closePath();ctx.fill()}
+function render(){const s=STEPS[step];$('title').textContent=s.title;$('desc').textContent=s.desc;$('note').textContent=s.note;$('stepTag').textContent=s.key;$('stepCount').textContent=`Paso ${step+1} de ${STEPS.length}`;$('progress').style.width=((step+1)/STEPS.length*100)+'%';$('prev').disabled=step===0;$('next').textContent=step===STEPS.length-1?'Finalizar prueba':'Siguiente paso';$('done').checked=false;draw()}
+function coords(e){const r=canvas.getBoundingClientRect();return {x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height}}
+canvas.addEventListener('pointerdown',e=>{drag=coords(e);canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(!drag)return;const p=coords(e);center.x=Math.min(.92,Math.max(.08,center.x+p.x-drag.x));center.y=Math.min(.92,Math.max(.12,center.y+p.y-drag.y));drag=p;draw()});canvas.addEventListener('pointerup',()=>{if(drag && tracking && qrPoint)relative={x:center.x-qrPoint.x,y:center.y-qrPoint.y};drag=null});canvas.addEventListener('pointercancel',()=>drag=null);
+
+function projectVideoPoint(px,py,vw,vh){
+ const r=$('viewer').getBoundingClientRect();const scale=Math.max(r.width/vw,r.height/vh);
+ const displayW=vw*scale,displayH=vh*scale,ox=(r.width-displayW)/2,oy=(r.height-displayH)/2;
+ return {x:(ox+px*scale)/r.width,y:(oy+py*scale)/r.height};
+}
+function updateStatus(message){$('camStatus').textContent=message;}
+async function scanLoop(now){
+ if(!scanActive || !stream)return;
+ requestAnimationFrame(scanLoop);
+ if(!tracking || now-lastScan<130)return;
+ lastScan=now;
+ const v=$('video');if(v.readyState<2||!v.videoWidth)return;
+ const factor=Math.min(1,480/v.videoWidth);
+ detectorCanvas.width=Math.max(1,Math.floor(v.videoWidth*factor));detectorCanvas.height=Math.max(1,Math.floor(v.videoHeight*factor));
+ try{
+ detectorCtx.drawImage(v,0,0,detectorCanvas.width,detectorCanvas.height);
+ if(typeof jsQR!=='function'){updateStatus('Lector QR no disponible');$('trackHelp').textContent='No cargó la biblioteca jsQR. Comprueba conexión a Internet y recarga.';return;}
+ const data=detectorCtx.getImageData(0,0,detectorCanvas.width,detectorCanvas.height);
+ const found=jsQR(data.data,data.width,data.height,{inversionAttempts:'attemptBoth'});
+ if(found && found.data.trim()===QR_VALUE){
+  const corners=[found.location.topLeftCorner,found.location.topRightCorner,found.location.bottomLeftCorner,found.location.bottomRightCorner];
+  let sx=0,sy=0;for(const p of corners){sx+=p.x;sy+=p.y}
+  const loc=projectVideoPoint((sx/4)/factor,(sy/4)/factor,v.videoWidth,v.videoHeight);
+  qrPoint=loc;qrSeenAt=Date.now();
+  if(!drag)center={x:Math.max(.05,Math.min(.95,qrPoint.x+relative.x)),y:Math.max(.05,Math.min(.95,qrPoint.y+relative.y))};
+  updateStatus('QR localizado ✓');$('offset').disabled=false;
+  $('hint').textContent='Marcador detectado. Desplaza la guía a su sitio y pulsa Fijar posición relativa.';
+  draw();
+ }else if(Date.now()-qrSeenAt>850){updateStatus('Buscando QR…');}
+ }catch(err){updateStatus('Error de lectura');}
+}
+$('track').onclick=()=>{
+ tracking=!tracking;
+ $('track').textContent=tracking?'Detener seguimiento QR':'Activar seguimiento QR';
+ $('track').classList.toggle('secondary',!tracking);
+ $('offset').disabled=!tracking||!qrPoint;
+ if(tracking){updateStatus('Buscando QR…');$('trackHelp').textContent='Mantén el QR a la vista de la cámara. Arrastra la guía sobre la pieza, luego pulsa «Fijar posición relativa». El seguimiento puede perderse con poca luz o movimientos rápidos.'}
+ else{updateStatus('Cámara activa · guía manual');$('hint').textContent='Guía manual. Arrástrala con el dedo.'}
+};
+$('offset').onclick=()=>{
+ if(!qrPoint)return;
+ relative={x:center.x-qrPoint.x,y:center.y-qrPoint.y};
+ $('hint').textContent='Desplazamiento guardado respecto al QR. Mueve lentamente la cámara para comprobarlo.';
+ events.push({fecha:new Date().toISOString(),paso:step+1,pieza:STEPS[step].key,confirmacion_manual:'ajuste_QR',camera_activa:!!stream});
+};
+
+$('center').onclick=()=>{center={x:.5,y:.52};if(qrPoint)relative={x:center.x-qrPoint.x,y:center.y-qrPoint.y};draw()};$('scale').oninput=e=>{size=Number(e.target.value)/100;$('scaleLabel').textContent=e.target.value+'%';draw()};$('showGuide').onchange=draw;
+$('prev').onclick=()=>{if(step>0)step--;render()};$('next').onclick=()=>{events.push({fecha:new Date().toISOString(),paso:step+1,pieza:STEPS[step].key,confirmacion_manual:$('done').checked,camera_activa:!!stream});if(step<STEPS.length-1){step++;render()}else alert('Recorrido completado. Guarda el CSV y evalúa si el objeto quedó bien armado. Esta comprobación es manual.')};
+function download(blob,name){const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1200)}
+$('log').onclick=()=>{let s='fecha,paso,pieza,confirmacion_manual,camera_activa\n';for(const v of events)s+=`${v.fecha},${v.paso},${v.pieza},${v.confirmacion_manual},${v.camera_activa}\n`;download(new Blob(['\ufeff'+s],{type:'text/csv;charset=utf-8'}),'ensambla-ia-guia-registro.csv')};
+async function stop(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}scanActive=false;tracking=false;qrPoint=null;$('track').disabled=true;$('track').textContent='Activar seguimiento QR';$('track').classList.add('secondary');$('offset').disabled=true;$('video').style.display='none';$('camera').textContent='Activar cámara';$('camStatus').textContent='Cámara apagada';$('flip').disabled=true;$('capture').disabled=true}
+async function start(){try{await stop();stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:facing},width:{ideal:1280},height:{ideal:720}}});const v=$('video');v.srcObject=stream;await v.play();v.style.display='block';$('camera').textContent='Detener cámara';$('camStatus').textContent='Cámara activa';$('flip').disabled=false;$('capture').disabled=false;$('track').disabled=false;scanActive=true;lastScan=0;requestAnimationFrame(scanLoop);$('hint').textContent='Arrastra la guía para alinearla. Confirma cada paso manualmente.'}catch(e){$('camStatus').textContent='Error de cámara';$('hint').textContent='Comprueba permisos de cámara y utiliza HTTPS. '+(e.message||'');}}
+$('camera').onclick=()=>stream?stop():start();$('flip').onclick=async()=>{facing=facing==='environment'?'user':'environment';await start()};
+$('capture').onclick=()=>{if(!stream)return;const v=$('video'),c=$('snap');c.width=v.videoWidth;c.height=v.videoHeight;const g=c.getContext('2d');g.drawImage(v,0,0,c.width,c.height);const r=$('viewer').getBoundingClientRect(),scaled=document.createElement('canvas');scaled.width=r.width;scaled.height=r.height;const gc=scaled.getContext('2d');gc.drawImage(v,Math.max(0,(v.videoWidth-v.videoHeight*(r.width/r.height))/2),0,Math.min(v.videoWidth,v.videoHeight*(r.width/r.height)),v.videoHeight,0,0,r.width,r.height);gc.drawImage(canvas,0,0,r.width,r.height);scaled.toBlob(b=>{if(b)download(b,`ensambla-ia-paso-${step+1}.png`)},'image/png')};
+window.addEventListener('resize',resize);document.addEventListener('visibilitychange',()=>{if(document.hidden&&stream)stop()});resize();render();
+</script></body></html>
